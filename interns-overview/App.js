@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 export default function indexPage() {
   const [loading, setLoading] = useState(true)
   const [internArray, setInternArray] = useState([])
-
   useEffect(() => {
     fetch("http://192.168.0.106/PERIODE%2011/stage/show-yourself-backend/api/getInterns.php")
     .then((response) => response.json())
@@ -13,16 +12,16 @@ export default function indexPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  function isOdd(num) { 
+  function isOddNumber(num) { 
     evenOrUneven = num % 2;
-    if (evenOrUneven = 0) {
+    if (evenOrUneven == 0) {
+      console.log("even");
       return 0;
     } else {
+      console.log("odd");
       return 1;
     }
   }
-
-
 
   return (
     <View>
@@ -32,8 +31,7 @@ export default function indexPage() {
           data={internArray}
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
-          console.log(isOdd(item.id)),
-          <Text style={[styles.text, (isOdd(item.id) == 0) ? styles.itemEven : styles.itemUneven]}>{item.name}, {item.category}</Text>
+          <Text style={styles.text, (isOddNumber(item.id) == 0) ? styles.itemUneven : styles.itemEven}>{item.name}, {item.category}</Text>
           )}
         />
       )}
