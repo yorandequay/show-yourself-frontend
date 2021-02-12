@@ -1,30 +1,29 @@
-import { Text, ActivityIndicator, View, Image, FlatList, StyleSheet, RefreshControl, TextInput} from 'react-native';
+import { Text, ActivityIndicator, View, Image, FlatList, StyleSheet, RefreshControl, TextInput, TouchableWithoutFeedback, TouchableOpacity} from 'react-native';
 import React, { useState, useEffect } from "react";
 import filter from 'lodash.filter';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 export default function indexPage() {
-  const API_ENDPOINT = `http://192.168.0.106/PERIODE%2011/stage/show-yourself-backend/api/getInterns.php`;
+  const API_ENDPOINT = `http://192.168.137.1/PERIODE%2011/stage/show-yourself-backend/api/getInterns.php`;
   const [loading, setLoading] = useState(true);
   const [internArray, setInternArray] = useState([]);
   const [fullInternArray, setFullInternArray] = useState([]);
   const [query, setQuery] = useState('');
   const [refreshing, setRefreshing] = React.useState(false);
+  const Stack = createStackNavigator();
 
-  renderHeader = () => 
-  (
+  renderHeader = () => (
     <View
       style={styles.border}
     >
       <TextInput
-        autoCapitalize="none"
-        autoCorrect={false}
-        clearButtonMode="always"
         value={query}
-        onChangeText={queryText => handleSearch(queryText)}
+        onChangeText={text => handleSearch(text)}
         placeholder="Search"
       />
     </View>
-  )
+  );
 
   useEffect(() => {
     fetch(API_ENDPOINT)
@@ -37,10 +36,11 @@ export default function indexPage() {
   const onRefresh = React.useCallback(async() => {
     setRefreshing(true);
     let response = await fetch(
-      'http://192.168.0.106/PERIODE%2011/stage/show-yourself-backend/api/getInterns.php',
+      API_ENDPOINT,
     );
     let responseJson = await response.json();
-    setInternArray(responseJson);
+    setFullInternArray(responseJson);
+    console.log(responseJson);
     setRefreshing(false);
   }, []);
 
@@ -53,7 +53,7 @@ export default function indexPage() {
     }
   }
 
-  const handleSearch = text => {
+  const handleSearch = (text) => {
     const formattedQuery = text;
     const filteredData = filter(internArray, intern => {
       return contains(intern, formattedQuery);
@@ -70,7 +70,33 @@ export default function indexPage() {
     return false;
   };
 
-  
+  function internListComp() {
+    return (
+      <FlatList
+      ListHeaderComponent={renderHeader}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+        contentContainerStyle={{ paddingBottom: 144 }}
+        style={styles.flatList}
+        data={fullInternArray}
+        keyExtractor={({ id }, index) => id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+          style={(isOddNumber(item.id) == 0) ? styles.itemUneven : styles.itemEven}>
+            <Text style={(isOddNumber(item.id) == 0) ? styles.itemUnevenText : styles.itemEvenText}>
+              {item.name}, {item.category}{"\n"}
+              Groep: {item.groupID}
+            </Text>
+          </TouchableOpacity>
+        )}
+    />
+    );
+  };
+
   
   return (
     <View>
@@ -90,7 +116,6 @@ export default function indexPage() {
           keyExtractor={({ id }, index) => id}
           renderItem={({ item }) => (
           <Text style={(isOddNumber(item.id) == 0) ? styles.itemUneven : styles.itemEven}>
-            {item.id} {"\n"}
             {item.name}, {item.category}{"\n"}
             {item.begin_internship} till {item.end_internship}{"\n"}
             Groep: {item.groupID}
@@ -99,21 +124,37 @@ export default function indexPage() {
         />
       )}
     </View>
+    
+    // <NavigationContainer>
+        
+    //     <Stack.Navigator>
+    //       <Stack.Screen
+    //         name="Intern lijst"
+    //         component={internListComp}
+    //       />
+    //     </Stack.Navigator>
+    // </NavigationContainer>
   );
 };
 const styles = StyleSheet.create({
   itemEven: {
     backgroundColor: '#154273',
-    color: '#FFF',
-    padding: 20,
+    padding: 10,
     fontSize: 20,
+    color: '#FFF',
   },
   itemUneven: {
     flex: 1,
     backgroundColor: '#FFF',
-    color: '#000000',
-    padding: 20,
+    padding: 10,
     fontSize: 20,
+    color: '#000000',
+  },
+  itemEvenText: {
+    color: '#FFF',
+  },
+  itemUnevenText: {
+    color: '#000000',
   },
   flatList: {
     flexGrow: 1,
