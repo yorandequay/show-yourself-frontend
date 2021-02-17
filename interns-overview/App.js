@@ -62,9 +62,12 @@ export default function indexPage() {
     setQuery(text);
   };
   
-  const contains = ({ name }, query) => {
+  const contains = ({ name, city, adress, category }, query) => {
     const fullName = name;
-    if (fullName.includes(query)) {
+    const cityName = city;
+    const adressName = adress;
+    const categoryName = category;
+    if (fullName.includes(query) || cityName.includes(query) || adressName.includes(query) || categoryName.includes(query)) {
       return true;
     }
     return false;
@@ -89,10 +92,14 @@ export default function indexPage() {
           style={(isOddNumber(item.id) == 0) ? styles.itemUneven : styles.itemEven}>
             <Text style={(isOddNumber(item.id) == 0) ? styles.itemUnevenText : styles.itemEvenText}>
               {item.name}, {item.category}{"\n"}
+              {item.begin_internship} tot {item.end_internship}{"\n"}
+              Adres: {item.city}, {item.adress}{"\n"}
               Groep: {item.groupID}
             </Text>
           </TouchableOpacity>
-        )}
+        )
+      }
+        
     />
     );
   };
@@ -117,7 +124,8 @@ export default function indexPage() {
           renderItem={({ item }) => (
           <Text style={(isOddNumber(item.id) == 0) ? styles.itemUneven : styles.itemEven}>
             {item.name}, {item.category}{"\n"}
-            {item.begin_internship} till {item.end_internship}{"\n"}
+            {item.begin_internship} tot {item.end_internship}{"\n"}
+            Adres: {item.city}, {item.adress}{"\n"}
             Groep: {item.groupID}
             </Text>
           )}
